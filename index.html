@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WordCraft AI — Write Better, Instantly</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0d0d0d;
+    --paper: #f7f3ee;
+    --cream: #ede8e0;
+    --gold: #c9a84c;
+    --gold-light: #e8c97a;
+    --rust: #c45c2e;
+    --sage: #3d5a4c;
+    --muted: #7a7065;
+    --white: #ffffff;
+    --card-bg: #ffffff;
+    --shadow: 0 4px 32px rgba(13,13,13,0.08);
+    --shadow-lg: 0 12px 60px rgba(13,13,13,0.14);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── NOISE TEXTURE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 48px;
+    background: rgba(247,243,238,0.88);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(201,168,76,0.2);
+  }
+
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+  }
+  .logo span { color: var(--gold); }
+
+  .nav-links { display: flex; gap: 32px; align-items: center; }
+  .nav-links a {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    cursor: pointer;
+  }
+  .nav-links a:hover { color: var(--ink); }
+
+  .badge-free {
+    font-size: 0.7rem;
+    font-weight: 500;
+    background: var(--cream);
+    color: var(--muted);
+    border: 1px solid rgba(0,0,0,0.1);
+    padding: 3px 10px;
+    border-radius: 99px;
+  }
+  .badge-pro {
+    font-size: 0.7rem;
+    font-weight: 500;
+    background: var(--gold);
+    color: var(--ink);
+    padding: 3px 10px;
+    border-radius: 99px;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    text-align: center;
+    padding: 100px 24px 80px;
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 24px;
+    opacity: 0;
+    animation: fadeUp 0.7s 0.1s forwards;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.8rem, 7vw, 5.5rem);
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+    margin-bottom: 24px;
+    opacity: 0;
+    animation: fadeUp 0.7s 0.2s forwards;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  .hero p {
+    font-size: 1.1rem;
+    font-weight: 300;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 560px;
+    margin: 0 auto 40px;
+    opacity: 0;
+    animation: fadeUp 0.7s 0.3s forwards;
+  }
+
+  .hero-cta {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: fadeUp 0.7s 0.4s forwards;
+  }
+
+  .btn-primary {
+    background: var(--ink);
+    color: var(--white);
+    border: none;
+    padding: 14px 32px;
+    border-radius: 4px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.25s;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .btn-primary:hover {
+    background: var(--sage);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(13,13,13,0.2);
+  }
+
+  .btn-gold {
+    background: var(--gold);
+    color: var(--ink);
+    border: none;
+    padding: 14px 32px;
+    border-radius: 4px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.25s;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .btn-gold:hover {
+    background: var(--gold-light);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(201,168,76,0.35);
+  }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--ink);
+    border: 1.5px solid rgba(13,13,13,0.25);
+    padding: 14px 32px;
+    border-radius: 4px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  .btn-outline:hover {
+    border-color: var(--ink);
+    background: var(--ink);
+    color: var(--white);
+  }
+
+  /* ── DIVIDER LINE ── */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    max-width: 900px;
+    margin: 0 auto 60px;
+    padding: 0 24px;
+  }
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(201,168,76,0.3), transparent);
+  }
+  .divider-text {
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gold);
+    white-space: nowrap;
+  }
+
+  /* ── MAIN APP ── */
+  .app-container {
+    max-width: 1000px;
+    margin: 0 auto 80px;
+    padding: 0 24px;
+  }
+
+  /* Type selection */
+  .type-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .type-card {
+    background: var(--card-bg);
+    border: 1.5px solid var(--cream);
+    border-radius: 8px;
+    padding: 16px 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .type-card::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--gold);
+    transform: scaleX(0);
+    transition: transform 0.25s;
+  }
+  .type-card:hover { border-color: rgba(201,168,76,0.4); transform: translateY(-2px); box-shadow: var(--shadow); }
+  .type-card:hover::before { transform: scaleX(1); }
+  .type-card.active { border-color: var(--gold); background: #fffbf2; box-shadow: var(--shadow); }
+  .type-card.active::before { transform: scaleX(1); }
+
+  .type-icon { font-size: 1.6rem; margin-bottom: 8px; display: block; }
+  .type-name { font-size: 0.8rem; font-weight: 500; color: var(--ink); }
+
+  /* Input area */
+  .input-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 32px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--cream);
+    margin-bottom: 24px;
+  }
+
+  .input-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+  @media(max-width:600px) { .input-row { grid-template-columns: 1fr; } }
+
+  .field-group { display: flex; flex-direction: column; gap: 8px; }
+  .field-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  input[type="text"], textarea, select {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    background: var(--paper);
+    border: 1.5px solid var(--cream);
+    border-radius: 6px;
+    padding: 12px 16px;
+    color: var(--ink);
+    transition: border-color 0.2s;
+    outline: none;
+    width: 100%;
+  }
+  input[type="text"]:focus, textarea:focus, select:focus {
+    border-color: var(--gold);
+  }
+  textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
+
+  .tone-options {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .tone-pill {
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 6px 16px;
+    border-radius: 99px;
+    border: 1.5px solid var(--cream);
+    background: var(--paper);
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--muted);
+  }
+  .tone-pill:hover { border-color: var(--gold); color: var(--ink); }
+  .tone-pill.active { background: var(--ink); color: var(--white); border-color: var(--ink); }
+
+  .generate-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+  }
+
+  .plan-indicator {
+    font-size: 0.8rem;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .plan-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--muted);
+  }
+  .plan-dot.pro { background: var(--gold); }
+
+  .btn-generate {
+    background: linear-gradient(135deg, var(--ink) 0%, #2a2a2a 100%);
+    color: var(--white);
+    border: none;
+    padding: 14px 40px;
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.25s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 180px;
+    justify-content: center;
+  }
+  .btn-generate:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(13,13,13,0.25);
+  }
+  .btn-generate:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Output */
+  .output-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 32px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--cream);
+    display: none;
+    animation: fadeUp 0.4s forwards;
+  }
+  .output-card.visible { display: block; }
+
+  .output-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .output-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .output-actions { display: flex; gap: 10px; }
+
+  .btn-copy, .btn-regen {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 8px 18px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-copy {
+    background: var(--sage);
+    color: var(--white);
+    border: none;
+  }
+  .btn-copy:hover { opacity: 0.85; }
+  .btn-regen {
+    background: transparent;
+    color: var(--muted);
+    border: 1.5px solid var(--cream);
+  }
+  .btn-regen:hover { border-color: var(--ink); color: var(--ink); }
+
+  .output-text {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--ink);
+    white-space: pre-wrap;
+    font-weight: 300;
+    min-height: 80px;
+  }
+
+  .word-count {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--cream);
+    font-size: 0.8rem;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+  }
+
+  /* Loader */
+  .loader {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+  }
+  .loader span {
+    width: 6px; height: 6px;
+    background: var(--white);
+    border-radius: 50%;
+    animation: bounce 1.2s infinite;
+  }
+  .loader span:nth-child(2) { animation-delay: 0.2s; }
+  .loader span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes bounce {
+    0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+    40% { transform: scale(1); opacity: 1; }
+  }
+
+  /* ── UPGRADE MODAL ── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(13,13,13,0.6);
+    backdrop-filter: blur(8px);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+  .modal {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 48px 40px;
+    max-width: 480px;
+    width: 100%;
+    box-shadow: var(--shadow-lg);
+    text-align: center;
+    transform: translateY(24px);
+    transition: transform 0.3s;
+  }
+  .modal-overlay.open .modal { transform: translateY(0); }
+
+  .modal-crown { font-size: 2.5rem; margin-bottom: 16px; }
+  .modal h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 900;
+    margin-bottom: 12px;
+    letter-spacing: -0.02em;
+  }
+  .modal p { font-size: 0.95rem; color: var(--muted); line-height: 1.6; margin-bottom: 32px; }
+
+  .price-tag {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+  .price-sub { font-size: 0.8rem; color: var(--muted); margin-bottom: 32px; }
+
+  .perks {
+    list-style: none;
+    text-align: left;
+    margin-bottom: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .perks li {
+    font-size: 0.9rem;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .perk-check {
+    width: 22px; height: 22px;
+    background: var(--sage);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: white;
+    font-size: 0.7rem;
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 16px; right: 20px;
+    background: none;
+    border: none;
+    font-size: 1.4rem;
+    cursor: pointer;
+    color: var(--muted);
+    transition: color 0.2s;
+  }
+  .modal-close:hover { color: var(--ink); }
+  .modal { position: relative; }
+
+  /* ── PRICING SECTION ── */
+  .pricing-section {
+    max-width: 800px;
+    margin: 0 auto 100px;
+    padding: 0 24px;
+    text-align: center;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    margin-bottom: 12px;
+  }
+  .section-sub { font-size: 1rem; color: var(--muted); margin-bottom: 56px; }
+
+  .pricing-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  @media(max-width:580px) { .pricing-cards { grid-template-columns: 1fr; } }
+
+  .pricing-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 36px 32px;
+    border: 1.5px solid var(--cream);
+    text-align: left;
+    transition: all 0.25s;
+  }
+  .pricing-card.featured {
+    border-color: var(--gold);
+    background: linear-gradient(160deg, #fffbf2 0%, #fff 100%);
+    box-shadow: 0 8px 40px rgba(201,168,76,0.18);
+  }
+  .pricing-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+
+  .plan-name {
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+  .plan-name.pro { color: var(--gold); }
+  .plan-price {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .plan-price sub { font-size: 1rem; font-family: 'DM Sans', sans-serif; }
+  .plan-period { font-size: 0.8rem; color: var(--muted); margin-bottom: 28px; }
+  .plan-features { list-style: none; display: flex; flex-direction: column; gap: 14px; margin-bottom: 28px; }
+  .plan-features li { font-size: 0.9rem; display: flex; gap: 10px; align-items: center; }
+  .feat-icon { font-size: 1rem; width: 20px; }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 32px 24px;
+    border-top: 1px solid var(--cream);
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  footer a { color: var(--muted); text-decoration: none; }
+  footer a:hover { color: var(--ink); }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── ERROR / NOTICE ── */
+  .notice {
+    font-size: 0.85rem;
+    padding: 12px 18px;
+    border-radius: 6px;
+    margin-top: 12px;
+  }
+  .notice.error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+  .notice.info { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+  .notice.warn { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+
+  .upgrade-nudge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.82rem;
+    color: var(--rust);
+    cursor: pointer;
+    transition: opacity 0.2s;
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .upgrade-nudge:hover { opacity: 0.75; }
+
+  /* Streaming cursor */
+  .cursor-blink {
+    display: inline-block;
+    width: 2px;
+    height: 1.1em;
+    background: var(--gold);
+    vertical-align: text-bottom;
+    animation: blink 1s infinite;
+    margin-left: 1px;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Word<span>Craft</span> AI</div>
+  <div class="nav-links">
+    <a onclick="scrollToApp()">Try It Free</a>
+    <a onclick="scrollToPricing()">Pricing</a>
+    <span id="planBadge" class="badge-free">Free Plan</span>
+    <button class="btn-gold" onclick="openModal()" style="padding:8px 20px;font-size:0.82rem;">Go Pro — £4.99</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">✦ AI-Powered Writing Assistant</div>
+  <h1>Write anything,<br><em>brilliantly.</em></h1>
+  <p>TikTok bios, blog posts, CV writing, product descriptions, scripts and more — crafted by AI in seconds.</p>
+  <div class="hero-cta">
+    <button class="btn-primary" onclick="scrollToApp()">Start Writing Free</button>
+    <button class="btn-outline" onclick="scrollToPricing()">See Pricing</button>
+  </div>
+</section>
+
+<div class="divider"><span class="divider-text">Choose your content type</span></div>
+
+<!-- MAIN APP -->
+<div class="app-container" id="appSection">
+
+  <!-- Content Type Selector -->
+  <div class="type-grid">
+    <div class="type-card active" onclick="selectType(this,'tiktok_bio')" data-type="tiktok_bio">
+      <span class="type-icon">📱</span>
+      <div class="type-name">TikTok Bio</div>
+    </div>
+    <div class="type-card" onclick="selectType(this,'script')" data-type="script">
+      <span class="type-icon">🎬</span>
+      <div class="type-name">Script</div>
+    </div>
+    <div class="type-card" onclick="selectType(this,'blog')" data-type="blog">
+      <span class="type-icon">✍️</span>
+      <div class="type-name">Blog Post</div>
+    </div>
+    <div class="type-card" onclick="selectType(this,'product')" data-type="product">
+      <span class="type-icon">🛍️</span>
+      <div class="type-name">Product Desc.</div>
+    </div>
+    <div class="type-card" onclick="selectType(this,'cv')" data-type="cv">
+      <span class="type-icon">📄</span>
+      <div class="type-name">CV / Résumé</div>
+    </div>
+    <div class="type-card" onclick="selectType(this,'instagram')" data-type="instagram">
+      <span class="type-icon">📸</span>
+      <div class="type-name">Instagram Bio</div>
+    </div>
+    <div class="type-card" onclick="selectType(this,'email')" data-type="email">
+      <span class="type-icon">📧</span>
+      <div class="type-name">Email / Cold Outreach</div>
+    </div>
+    <div class="type-card" onclick="selectType(this,'caption')" data-type="caption">
+      <span class="type-icon">💬</span>
+      <div class="type-name">Social Caption</div>
+    </div>
+  </div>
+
+  <!-- Input Card -->
+  <div class="input-card">
+    <div id="dynamicFields"></div>
+
+    <div style="margin-top:16px">
+      <div class="field-label" style="margin-bottom:10px">Tone</div>
+      <div class="tone-options" id="toneOptions">
+        <div class="tone-pill active" onclick="selectTone(this,'Professional')">Professional</div>
+        <div class="tone-pill" onclick="selectTone(this,'Casual')">Casual</div>
+        <div class="tone-pill" onclick="selectTone(this,'Funny')">Funny</div>
+        <div class="tone-pill" onclick="selectTone(this,'Bold')">Bold</div>
+        <div class="tone-pill" onclick="selectTone(this,'Inspirational')">Inspirational</div>
+        <div class="tone-pill" onclick="selectTone(this,'Luxury')">Luxury</div>
+      </div>
+    </div>
+
+    <div class="generate-row">
+      <div>
+        <div class="plan-indicator">
+          <div class="plan-dot" id="planDot"></div>
+          <span id="planText">Free Plan — up to 200 words</span>
+        </div>
+        <div id="upgradeLink" style="margin-top:8px">
+          <span class="upgrade-nudge" onclick="openModal()">✦ Upgrade to Pro for unlimited, premium quality</span>
+        </div>
+      </div>
+      <button class="btn-generate" id="generateBtn" onclick="generate()">
+        <span id="btnLabel">Generate ✦</span>
+      </button>
+    </div>
+    <div id="genNotice"></div>
+  </div>
+
+  <!-- Output -->
+  <div class="output-card" id="outputCard">
+    <div class="output-header">
+      <div class="output-label">✦ Your Generated Content</div>
+      <div class="output-actions">
+        <button class="btn-regen" onclick="generate()">↺ Regenerate</button>
+        <button class="btn-copy" onclick="copyOutput()">Copy</button>
+      </div>
+    </div>
+    <div class="output-text" id="outputText"></div>
+    <div class="word-count">
+      <span id="wordCountLabel">0 words</span>
+      <span id="qualityLabel" style="color:var(--gold)"></span>
+    </div>
+  </div>
+
+</div>
+
+<!-- PRICING -->
+<div class="divider"><span class="divider-text">Simple pricing</span></div>
+<section class="pricing-section" id="pricingSection">
+  <h2 class="section-title">Start free. Go pro.</h2>
+  <p class="section-sub">No complicated tiers. Just great writing.</p>
+  <div class="pricing-cards">
+    <!-- Free -->
+    <div class="pricing-card">
+      <div class="plan-name">Free Forever</div>
+      <div class="plan-price"><sub>£</sub>0</div>
+      <div class="plan-period">no credit card needed</div>
+      <ul class="plan-features">
+        <li><span class="feat-icon">✓</span> All content types</li>
+        <li><span class="feat-icon">✓</span> Up to 200 words per generation</li>
+        <li><span class="feat-icon">✓</span> 6 tone options</li>
+        <li><span class="feat-icon">✗</span> <span style="color:var(--muted)">Premium quality AI writing</span></li>
+        <li><span class="feat-icon">✗</span> <span style="color:var(--muted)">Unlimited length</span></li>
+      </ul>
+      <button class="btn-outline" onclick="scrollToApp()" style="width:100%">Start Free</button>
+    </div>
+    <!-- Pro -->
+    <div class="pricing-card featured">
+      <div class="plan-name pro">Pro — Most Popular</div>
+      <div class="plan-price"><sub>£</sub>4.99</div>
+      <div class="plan-period">per month, cancel anytime</div>
+      <ul class="plan-features">
+        <li><span class="feat-icon">✓</span> All content types</li>
+        <li><span class="feat-icon">✓</span> <strong>Unlimited</strong> word count</li>
+        <li><span class="feat-icon">✓</span> <strong>Premium quality</strong> AI writing</li>
+        <li><span class="feat-icon">✓</span> Advanced tone & style control</li>
+        <li><span class="feat-icon">✓</span> Priority generation speed</li>
+        <li><span class="feat-icon">✓</span> New features first</li>
+      </ul>
+      <button class="btn-gold" onclick="openModal()" style="width:100%">Get Pro — £4.99/mo</button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>© 2025 WordCraft AI &nbsp;·&nbsp; <a href="#">Privacy</a> &nbsp;·&nbsp; <a href="#">Terms</a></p>
+  <p style="margin-top:8px">Built with Claude AI by Anthropic</p>
+</footer>
+
+<!-- UPGRADE MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOnBg(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <div class="modal-crown">👑</div>
+    <h2>Unlock Pro Writing</h2>
+    <p>Get unlimited, premium-quality AI content — longer, smarter, and crafted with serious care.</p>
+    <div class="price-tag">£4.99</div>
+    <div class="price-sub">per month · cancel anytime</div>
+    <ul class="perks">
+      <li><span class="perk-check">✓</span> Unlimited word count on every generation</li>
+      <li><span class="perk-check">✓</span> Premium quality writing — detailed, polished, thorough</li>
+      <li><span class="perk-check">✓</span> All content types & tones</li>
+      <li><span class="perk-check">✓</span> Priority access to new features</li>
+    </ul>
+    <!-- Replace this button with your Stripe/Gumroad/LemonSqueezy link -->
+    <button class="btn-gold" style="width:100%;padding:16px;font-size:1rem;" onclick="handleProCheckout()">
+      Continue to Payment →
+    </button>
+    <p style="font-size:0.75rem;color:var(--muted);margin-top:16px;margin-bottom:0">
+      Secure payment. You'll get a Pro access code by email.
+    </p>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════
+let currentType = 'tiktok_bio';
+let currentTone = 'Professional';
+let isPro = false;
+let isGenerating = false;
+
+// ═══════════════════════════════════════
+//  TYPE FIELD CONFIG
+// ═══════════════════════════════════════
+const typeConfig = {
+  tiktok_bio: {
+    fields: [
+      { id:'name', label:'Your Name / Brand', placeholder:'e.g. Mia Rose, GlowUp Co.' },
+      { id:'niche', label:'Your Niche / What You Do', placeholder:'e.g. fitness, comedy skits, small business owner' },
+      { id:'vibe', label:'Your Personality Vibe', placeholder:'e.g. bold, funny, aesthetic, motivational' },
+    ]
+  },
+  instagram: {
+    fields: [
+      { id:'name', label:'Your Name / Brand', placeholder:'e.g. Jake Travels, Luna Skin' },
+      { id:'niche', label:'What You Post About', placeholder:'e.g. travel photography, skincare tips' },
+      { id:'cta', label:'Call to Action (optional)', placeholder:'e.g. Link in bio, DM for collabs' },
+    ]
+  },
+  script: {
+    fields: [
+      { id:'topic', label:'Video Topic / Title', placeholder:'e.g. 5 habits that changed my life' },
+      { id:'platform', label:'Platform', placeholder:'e.g. TikTok, YouTube, Instagram Reels' },
+      { id:'duration', label:'Approximate Length', placeholder:'e.g. 60 seconds, 5 minutes' },
+    ]
+  },
+  blog: {
+    fields: [
+      { id:'topic', label:'Blog Topic', placeholder:'e.g. How to start investing at 20' },
+      { id:'audience', label:'Target Audience', placeholder:'e.g. young professionals, new parents' },
+      { id:'angle', label:'Unique Angle / Hook', placeholder:'e.g. my personal story, myth-busting, step-by-step' },
+    ]
+  },
+  product: {
+    fields: [
+      { id:'product', label:'Product Name', placeholder:'e.g. Matte Lip Set, Leather Crossbody Bag' },
+      { id:'features', label:'Key Features / Benefits', placeholder:'e.g. long-lasting, cruelty-free, handmade in Italy' },
+      { id:'audience', label:'Target Customer', placeholder:'e.g. women 25-40, eco-conscious shoppers' },
+    ]
+  },
+  cv: {
+    fields: [
+      { id:'role', label:'Job Title / Role Applying For', placeholder:'e.g. Marketing Manager, Junior Developer' },
+      { id:'experience', label:'Your Experience & Skills', placeholder:'e.g. 3 years in digital marketing, SEO, content creation, managed £50k budgets' },
+      { id:'highlight', label:'Your Biggest Achievement', placeholder:'e.g. Grew Instagram from 0 to 50k, Increased sales by 40%' },
+    ]
+  },
+  email: {
+    fields: [
+      { id:'purpose', label:'Email Purpose', placeholder:'e.g. cold outreach to brands, follow-up email, pitch' },
+      { id:'sender', label:'Who Are You?', placeholder:'e.g. freelance photographer, small business owner' },
+      { id:'recipient', label:'Who Are You Emailing?', placeholder:'e.g. marketing director at a clothing brand' },
+    ]
+  },
+  caption: {
+    fields: [
+      { id:'topic', label:'What Is the Post About?', placeholder:'e.g. my morning routine, product launch, travel photo' },
+      { id:'platform', label:'Platform', placeholder:'e.g. Instagram, LinkedIn, Facebook' },
+      { id:'extra', label:'Any Extra Info or Hashtag Themes?', placeholder:'e.g. include emojis, fitness hashtags' },
+    ]
+  },
+};
+
+// ═══════════════════════════════════════
+//  RENDER FIELDS
+// ═══════════════════════════════════════
+function renderFields(type) {
+  const cfg = typeConfig[type];
+  const container = document.getElementById('dynamicFields');
+  let html = '';
+  cfg.fields.forEach((f, i) => {
+    if (i % 2 === 0) {
+      const next = cfg.fields[i+1];
+      html += `<div class="input-row">
+        <div class="field-group">
+          <label class="field-label">${f.label}</label>
+          <input type="text" id="field_${f.id}" placeholder="${f.placeholder}" />
+        </div>`;
+      if (next) {
+        html += `<div class="field-group">
+          <label class="field-label">${next.label}</label>
+          <input type="text" id="field_${next.id}" placeholder="${next.placeholder}" />
+        </div>`;
+      }
+      html += `</div>`;
+    }
+  });
+  container.innerHTML = html;
+}
+renderFields('tiktok_bio');
+
+// ═══════════════════════════════════════
+//  SELECTORS
+// ═══════════════════════════════════════
+function selectType(el, type) {
+  document.querySelectorAll('.type-card').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  currentType = type;
+  renderFields(type);
+  document.getElementById('outputCard').classList.remove('visible');
+}
+
+function selectTone(el, tone) {
+  document.querySelectorAll('.tone-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  currentTone = tone;
+}
+
+// ═══════════════════════════════════════
+//  PRO STATE
+// ═══════════════════════════════════════
+function activatePro(code) {
+  // In production replace this with real payment verification
+  isPro = true;
+  localStorage.setItem('wc_pro', '1');
+  document.getElementById('planDot').classList.add('pro');
+  document.getElementById('planText').textContent = 'Pro Plan — Unlimited words, premium quality';
+  document.getElementById('upgradeLink').style.display = 'none';
+  document.getElementById('planBadge').textContent = 'Pro ✦';
+  document.getElementById('planBadge').className = 'badge-pro';
+}
+
+// Check if pro on load
+if (localStorage.getItem('wc_pro') === '1') activatePro();
+
+// ═══════════════════════════════════════
+//  BUILD PROMPT
+// ═══════════════════════════════════════
+function buildPrompt(type, fields, tone, pro) {
+  const qualityInstr = pro
+    ? `Write with exceptional quality — be sophisticated, detailed, compelling and thorough. Use professional vocabulary and craft every sentence with care. No filler content. This is premium-grade writing.`
+    : `Write a basic, decent version. Keep it under 200 words. Simple and functional.`;
+
+  const toneInstr = `The overall tone should be: ${tone}.`;
+
+  const typePrompts = {
+    tiktok_bio: `Write a TikTok bio for someone named "${fields.name}" who creates content about "${fields.niche}". Their personality vibe is "${fields.vibe}". The bio must be punchy, fit in 150 characters or fewer for the free version, and capture their essence instantly. No hashtags in the bio itself.`,
+    instagram: `Write an Instagram bio for "${fields.name}" who posts about "${fields.niche}". ${fields.cta ? `Include this call to action: ${fields.cta}.` : ''} Make it engaging and memorable.`,
+    script: `Write a ${fields.duration} video script about "${fields.topic}" for ${fields.platform}. Include a hook in the first 3 seconds, main content, and a clear call to action at the end. Format it clearly with [HOOK], [MAIN], [CTA] labels.`,
+    blog: `Write a blog post about "${fields.topic}" aimed at ${fields.audience}. The angle/hook is: ${fields.angle}. Include a compelling title, introduction, main body, and conclusion.`,
+    product: `Write a product description for "${fields.product}". Key features: ${fields.features}. Target customer: ${fields.audience}. Make it convert — highlight benefits over features, create desire.`,
+    cv: `Write a professional CV personal statement / profile for someone applying for a ${fields.role} position. Their experience and skills: ${fields.experience}. Their biggest achievement: ${fields.highlight}. This should be the opening summary paragraph of their CV.`,
+    email: `Write a ${fields.purpose} email. The sender is: ${fields.sender}. The recipient is: ${fields.recipient}. Make it concise, personalised-feeling, and compelling. Include subject line and email body.`,
+    caption: `Write a social media caption for a post about "${fields.topic}" on ${fields.platform}. ${fields.extra ? `Additional notes: ${fields.extra}.` : ''} Make it engaging and shareable.`,
+  };
+
+  return `${qualityInstr}\n\n${toneInstr}\n\n${typePrompts[type]}\n\nOutput ONLY the written content — no preamble, no "here is your...", no explanation. Just the content itself, ready to use.`;
+}
+
+// ═══════════════════════════════════════
+//  GENERATE
+// ═══════════════════════════════════════
+async function generate() {
+  if (isGenerating) return;
+
+  // Collect fields
+  const cfg = typeConfig[currentType];
+  const fields = {};
+  let allFilled = true;
+  cfg.fields.forEach(f => {
+    const el = document.getElementById('field_' + f.id);
+    fields[f.id] = el ? el.value.trim() : '';
+    if (!fields[f.id]) allFilled = false;
+  });
+
+  if (!allFilled) {
+    showNotice('genNotice', '⚠️ Please fill in all fields before generating.', 'warn');
+    return;
+  }
+
+  isGenerating = true;
+  document.getElementById('genNotice').innerHTML = '';
+  document.getElementById('generateBtn').disabled = true;
+  document.getElementById('btnLabel').innerHTML = '<div class="loader"><span></span><span></span><span></span></div>';
+
+  const outputCard = document.getElementById('outputCard');
+  const outputText = document.getElementById('outputText');
+  outputCard.classList.add('visible');
+  outputText.innerHTML = '<span class="cursor-blink"></span>';
+
+  const prompt = buildPrompt(currentType, fields, currentTone, isPro);
+  const maxTokens = isPro ? 2000 : 320;
+
+  try {
+    // Call OUR backend — API key is safe on the server, never exposed
+    const response = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: maxTokens,
+        isPro: isPro,
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || `Server error ${response.status}`);
+    }
+
+    const text = data.content[0]?.text || '';
+    outputText.textContent = text;
+    const wc = text.trim().split(/\s+/).filter(Boolean).length;
+    document.getElementById('wordCountLabel').textContent = `${wc} words`;
+    document.getElementById('qualityLabel').textContent = isPro ? '✦ Premium Quality' : 'Standard Quality';
+
+  } catch(e) {
+    outputText.textContent = '';
+    outputCard.classList.remove('visible');
+    showNotice('genNotice', `Error: ${e.message}`, 'error');
+  }
+
+  isGenerating = false;
+  document.getElementById('generateBtn').disabled = false;
+  document.getElementById('btnLabel').textContent = 'Generate ✦';
+}
+
+// ═══════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════
+function copyOutput() {
+  const text = document.getElementById('outputText').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.btn-copy');
+    btn.textContent = 'Copied!';
+    setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+  });
+}
+
+function showNotice(id, msg, type) {
+  document.getElementById(id).innerHTML = `<div class="notice ${type}">${msg}</div>`;
+}
+
+function scrollToApp() {
+  document.getElementById('appSection').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+function scrollToPricing() {
+  document.getElementById('pricingSection').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+function openModal() { document.getElementById('modalOverlay').classList.add('open'); }
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+function closeModalOnBg(e) { if (e.target === document.getElementById('modalOverlay')) closeModal(); }
+
+function handleProCheckout() {
+  // 👇 REPLACE THIS URL with your Stripe/Gumroad/LemonSqueezy payment link
+  const paymentUrl = 'https://buy.stripe.com/cNiaEQ5MDfAX4ljfm86Vq00';
+  window.open(paymentUrl, '_blank');
+  closeModal();
+  // After user pays, they get a code emailed → they paste it to unlock pro
+  // For simplicity, you can also just set a secret URL param: ?pro=YOURCODE
+  setTimeout(() => {
+    const code = prompt('After payment, enter your Pro access code:');
+    if (code === 'WORDCRAFT-PRO-2025') { // Change this to your own code
+      activatePro(code);
+      alert('🎉 Pro activated! Enjoy unlimited premium writing.');
+    }
+  }, 1500);
+}
+
+// URL param activation (e.g. share link with ?pro=YOURCODE)
+const params = new URLSearchParams(window.location.search);
+if (params.get('pro') === 'WORDCRAFT-PRO-2025') activatePro(); // Change this
+</script>
+</body>
+</html>
